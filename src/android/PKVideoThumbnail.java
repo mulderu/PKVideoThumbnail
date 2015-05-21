@@ -31,12 +31,38 @@ import android.graphics.Bitmap.CompressFormat;
 import android.media.*;
 import android.provider.MediaStore;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+
 import java.io.*;
 
 /**
  * This class echoes a string called from JavaScript.
  */
 public class PKVideoThumbnail extends CordovaPlugin {
+
+
+    private void echo(String message, CallbackContext callbackContext) {
+            if (message != null && message.length() > 0) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this.cordova.getActivity());
+                builder.setMessage(message).setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, message));
+                callbackContext.success(message);
+            } else {
+                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, "Expected one non-empty string argument."));
+                callbackContext.error("Expected one non-empty string argument.");
+            }
+        }
 
     /**
      * Executes the request and returns PluginResult.
@@ -48,7 +74,12 @@ public class PKVideoThumbnail extends CordovaPlugin {
      */
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         try {
-            if (action.equals("createThumbnail")) {
+            if (action.equals("echo")) {
+                String message = args.getString(0);
+                this.echo(message, callbackContext);
+                return true;
+            }
+            else if (action.equals("createThumbnail")) {
                 String sourceVideo = args.getString(0);
                 String targetImage = args.getString(1);
                 
